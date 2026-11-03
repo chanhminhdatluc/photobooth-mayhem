@@ -1,11 +1,17 @@
 import type { Point } from "../isometric/projection";
 import { findPath } from "./navigation";
 import { SHOP, same, walkable } from "./shop";
+import type { BusinessCommand, BusinessState } from "../business/BusinessSimulation";
 
 export type WorldMessage = "world.hint" | "world.blocked" | "world.walking" | "world.alreadyHere" | "world.routeBlocked" | "world.atBooth" | "world.arrived";
 export interface WorldView { position: Point; moving: boolean; selected: boolean; atBooth: boolean; message: WorldMessage }
 export type WorldCommand = { type: "INSPECT" } | { type: "DISMISS" } | { type: "RECENTER" };
-export interface WorldBridge { publish: (view: WorldView) => void; command?: (command: WorldCommand) => void }
+export interface WorldBridge {
+  publish: (view: WorldView) => void;
+  publishBusiness?: (view: Readonly<BusinessState>) => void;
+  command?: (command: WorldCommand) => void;
+  businessCommand?: (command: BusinessCommand) => void;
+}
 
 export class WorldModel {
   position: Point = { ...SHOP.spawn };

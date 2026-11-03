@@ -14,7 +14,7 @@ export function createGame(parent: HTMLElement, ready: () => void, bridge: World
     banner: false,
     audio: { noAudio: true },
     fps: { target: RENDERING.targetFps },
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+    scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH },
     scene: [new ShopScene(ready, bridge)],
   });
 }

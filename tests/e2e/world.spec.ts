@@ -3,7 +3,8 @@ import { project } from "../../game/isometric/projection";
 
 async function point(page: Page, x: number, y: number) {
   const box = (await page.locator("canvas").boundingBox())!;
-  return { x: box.x + x * box.width / 360, y: box.y + y * box.height / 420 };
+  const c = await page.locator("canvas").evaluate(canvas => JSON.parse(canvas.dataset.camera!) as { zoom: number; scrollX: number; scrollY: number; width: number; height: number });
+  return { x: box.x + ((x - c.scrollX - c.width / 2) * c.zoom + c.width / 2) * box.width / c.width, y: box.y + ((y - c.scrollY - c.height / 2) * c.zoom + c.height / 2) * box.height / c.height };
 }
 async function tap(page: Page, mobile: boolean, x: number, y: number) {
   const p = await point(page, x, y);
@@ -19,7 +20,7 @@ test("walk, reject walls, inspect booth and recenter after dragging", async ({ p
   await tap(page, isMobile, target.x, target.y);
   await expect(page.getByTestId("player-position")).toContainText("Đang đi");
   await expect(page.getByTestId("player-position")).toContainText("2,0; 5,0 · Đứng yên");
-  const blocked = project({ x: 0, y: 5 });
+  const blocked = project({ x: 0, y: 3 });
   await tap(page, isMobile, blocked.x, blocked.y);
   await expect(page.getByText("Chỗ đó bị chắn hoặc không có lối đi tới.")).toBeVisible();
   await expect(page.getByTestId("player-position")).toContainText("2,0; 5,0 · Đứng yên");
@@ -31,7 +32,7 @@ test("walk, reject walls, inspect booth and recenter after dragging", async ({ p
   await page.screenshot({ path: info.outputPath("shop-inspection.png"), fullPage: true });
   await page.getByRole("button", { name: "Đóng bảng kiểm tra" }).click();
   await expect(page.getByRole("region", { name: "Kiểm tra buồng chụp" })).toHaveCount(0);
-  const drag = await point(page, 160, 330);
+  const drag = await point(page, 160, 240);
   await page.mouse.move(drag.x, drag.y); await page.mouse.down();
   await page.mouse.move(drag.x + 30, drag.y + 20, { steps: 5 }); await page.mouse.up();
   await expect(page.getByTestId("player-position")).toContainText("3,0; 3,0 · Đứng yên");

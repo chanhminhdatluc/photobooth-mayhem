@@ -14,8 +14,10 @@ test("home, renderer pixels, resize, navigation cleanup and reload", async ({ pa
     const ctx = canvas.getContext("2d");
     if (!ctx) return false;
     const background = [...ctx.getImageData(1, 1, 1, 1).data];
-    const booth = [...ctx.getImageData(120, 140, 1, 1).data];
-    return booth[3] === 255 && background.some((value, i) => value !== booth[i]);
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let different = 0;
+    for (let i = 0; i < pixels.length; i += 4) if (pixels[i] !== background[0] || pixels[i + 1] !== background[1]) different++;
+    return different > canvas.width * canvas.height * 0.2;
   })).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("renderer.png"), fullPage: true });
   for (const viewport of [{ width: 320, height: 640 }, { width: 740, height: 360 }]) {
@@ -27,6 +29,7 @@ test("home, renderer pixels, resize, navigation cleanup and reload", async ({ pa
     expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width + 1);
   }
   for (let i = 0; i < 3; i++) {
+    await page.getByRole("button", { name: "Tùy chọn", exact: true }).click();
     await page.getByRole("link", { name: "Về trang chủ" }).click();
     await expect(page.locator("canvas")).toHaveCount(0);
     await page.getByRole("link", { name: /Vào thăm tiệm/ }).click();

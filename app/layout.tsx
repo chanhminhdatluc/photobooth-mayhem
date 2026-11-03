@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { DEFAULT_LOCALE, t } from "@/lib/i18n";
+import { fontVariables } from "./fonts";
 
 export const metadata: Metadata = {
   title: t("brand.title"),
@@ -9,5 +10,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#f8f0e7" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang={DEFAULT_LOCALE}><body>{children}</body></html>;
+  return <html lang={DEFAULT_LOCALE} className={fontVariables}><body>{children}</body></html>;
 }
